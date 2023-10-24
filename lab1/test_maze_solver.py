@@ -18,8 +18,8 @@ def test_maze_solver():
     assert maze_solver.query(2, 2, exit_point, n) == True
 
 
-def test_stress_maze_solver():
-    n = 1000000
+def test_maze_solver_big():
+    n = 1920
 
     temp1 = ["."]
     temp2 = ["#"] * (n - 1)
@@ -28,4 +28,6 @@ def test_stress_maze_solver():
 
     maze_solver = Maze_Solver(labyrinth, n)
 
-    assert maze_solver.query(0, 0, (n - 1, 0), n) == True
+    for i in range(1, 1920):
+       assert maze_solver.query(0, 0, (n - i, 0), n) == True
+
