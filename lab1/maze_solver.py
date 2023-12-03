@@ -1,38 +1,42 @@
 class DSU:
-    def __init__(self, n):
-        self.parent = [i for i in range(n * n)]
-        self.rank = [0] * (n * n)
+    def __init__(self):
+        self.parent = {}
 
     def find(self, u):
-        if u != self.parent[u]:
-            self.parent[u] = self.find(self.parent[u])
-        return self.parent[u]
+        if u not in self.parent:
+            self.parent[u] = u
+            return u
+
+        # Iterative path compression
+        stack = []
+        while u != self.parent[u]:
+            stack.append(u)
+            u = self.parent[u]
+        for v in stack:
+            self.parent[v] = u
+        return u
 
     def union(self, u, v):
-        root1 = self.find(u)
-        root2 = self.find(v)
-
-        if root1 != root2:
-            if self.rank[root1] > self.rank[root2]:
-                root1, root2 = root2, root1
-            self.parent[root1] = root2
-            if self.rank[root1] == self.rank[root2]:
-                self.rank[root2] += 1
+        root_u, root_v = self.find(u), self.find(v)
+        if root_u != root_v:
+            self.parent[root_u] = root_v
 
 
 class Maze_Solver:
-    def __init__(self, labyrinth, n):
-        self.dsu = DSU(n)
-        for i in range(n):
-            for j in range(n):
-                if i + 1 < n and labyrinth[i + 1][j] == labyrinth[i][j] == '.':
-                    self.dsu.union(index(i, j, n), index(i + 1, j, n))
-                if j + 1 < n and labyrinth[i][j + 1] == labyrinth[i][j] == '.':
-                    self.dsu.union(index(i, j, n), index(i, j + 1, n))
+    def __init__(self, n):
+        self.dsu = DSU()
+        self.n = n
 
-    def query(self, x, y, exit_point, n):
-        return self.dsu.find(index(x, y, n)) == self.dsu.find(index(exit_point[0], exit_point[1], n))
+    def process_path(self, labyrinth):
+        for i in range(self.n):
+            for j in range(self.n):
+                if i + 1 < self.n and labyrinth(i, j) == labyrinth(i + 1, j) == '.':
+                    self.dsu.union(self.index(i, j), self.index(i + 1, j))
+                if j + 1 < self.n and labyrinth(i, j) == labyrinth(i, j + 1) == '.':
+                    self.dsu.union(self.index(i, j), self.index(i, j + 1))
 
+    def query(self, x, y, exit_x, exit_y):
+        return self.dsu.find(self.index(x, y)) == self.dsu.find(self.index(exit_x, exit_y))
 
-def index(i, j, n):
-    return i * n + j
+    def index(self, i, j):
+        return i * self.n + j
